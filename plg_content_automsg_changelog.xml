@@ -1,0 +1,120 @@
+<changelogs>
+	<changelog>
+		<element>automsg</element>
+		<type>plugin</type>
+		<group>content</group>
+		<version>3.0.0</version>
+        <note>
+            <item>Update : 23/03/2023</item>
+        </note>
+		<change>
+			<item>publishedarticle plugin becomes content/automsg plugin</item>
+		</change>
+		<fix>
+			<item>Wrong article id in {url}</item>
+		</fix>
+	</changelog>
+	<changelog>
+		<element>automsg</element>
+		<type>plugin</type>
+		<group>content</group>
+		<version>2.1.1</version>
+        <note>
+            <item>Update : 21/03/2023</item>
+        </note>
+		<fix>
+			<item>Deny not an array error</item>
+		</fix>
+	</changelog>
+	<changelog>
+		<element>publishedarticle</element>
+		<type>plugin</type>
+		<group>content</group>
+		<version>2.1.0</version>
+        <note>
+            <item>Update : 21/03/2023</item>
+        </note>
+		<addition>
+			<item>Asynchronous mode</item>
+		</addition>
+	</changelog>
+	<changelog>
+		<element>publishedarticle</element>
+		<type>plugin</type>
+		<group>content</group>
+		<version>2.0.5</version>
+        <note>
+            <item>Update : 20/03/2023</item>
+        </note>
+		<fix>
+			<item>force load language</item>
+		</fix>
+	</changelog>
+	<changelog>
+		<element>publishedarticle</element>
+		<type>plugin</type>
+		<group>content</group>
+		<version>2.0.4</version>
+        <note>
+            <item>Update : 20/03/2023</item>
+        </note>
+		<addition>
+			<item>use profile_automsg.token</item>
+			<item>add {unsubscribe} tag to message body</item>
+		</addition>
+	</changelog>
+	<changelog>
+		<element>publishedarticle</element>
+		<type>plugin</type>
+		<group>content</group>
+		<version>2.0.3</version>
+        <note>
+            <item>Update : 17/03/2023</item>
+        </note>
+         <fix>
+            <item>Send always message if no category selected</item>
+        </fix>
+        <change>
+            <item>User group selection using fancy-select</item>
+        </change>
+		<addition>
+			<item>Check profile automsg settings</item>
+		</addition>
+	</changelog>
+	<changelog>
+		<element>publishedarticle</element>
+		<type>plugin</type>
+		<group>content</group>
+		<version>2.0.2</version>
+        <note>
+            <item>Update : 17/03/2023</item>
+        </note>
+         <fix>
+            <item>Missing Subject/Body parameters in xml</item>
+        </fix>
+	</changelog>
+	<changelog>
+		<element>publishedarticle</element>
+		<type>plugin</type>
+		<group>content</group>
+		<version>2.0.1</version>
+        <note>
+            <item>Update : 17/03/2023</item>
+        </note>
+         <addition>
+            <item>Subject/Body parameters using special tags</item>
+        </addition>
+	</changelog>
+	<changelog>
+		<element>publishedarticle</element>
+		<type>plugin</type>
+		<group>content</group>
+		<version>2.0.0</version>
+        <note>
+            <item>Update : 16/03/2023</item>
+        </note>
+         <addition>
+            <item>Joomla 4.x compatibility</item>
+        </addition>
+	</changelog>
+</changelogs>

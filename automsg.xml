@@ -1,0 +1,84 @@
+<?xml version="1.0" encoding="utf-8"?>
+<extension version="1.0" type="plugin" group="content" method="upgrade">
+	<name>PLG_CONTENT_AUTOMSG</name>
+	<author>conseilgouz</author>
+	<creationDate>2023/03/21</creationDate>
+	<copyright>Copyright (C) 2023 ConseilGouz. All rights reserved.</copyright>
+	<license>GNU General Public License version 2 or later; see LICENSE.txt</license>
+	<authorEmail>pascal.leconte@conseilgouz.com</authorEmail>
+	<authorUrl>www.conseilgouz.com</authorUrl>
+	<version>3.0.0</version>
+	<description>PLG_CONTENT_AUTOMSG_XML_DESCRIPTION</description>
+	<files>
+		<filename plugin="automsg">automsg.php</filename>
+		<filename >index.html</filename>
+	</files>
+    <languages>
+		<language tag="fr-FR">language/fr-FR/plg_content_automsg.ini</language>
+		<language tag="fr-FR">language/fr-FR/plg_content_automsg.sys.ini</language>
+	</languages>
+	<scriptfile>script.php</scriptfile>
+	<changelogurl>https://raw.githubusercontent.com/conseilgouz/plg_content_automsg_j4/master/plg_content_automsg_changelog.xml</changelogurl>
+	
+	<config>
+		<fields name="params">
+			<fieldset name="basic">
+				<field name="categories"
+						type="category"	multiple="true"	extension="com_content"
+						layout="joomla.form.field.list-fancy-select"
+						label="JCATEGORIES"
+						>
+				</field>
+				<field name="usergroups"
+					type="usergrouplist"
+					description="PLG_CONTENT_AUTOMSG_USERGROUP_DESC"
+					label="PLG_CONTENT_AUTOMSG_USERGROUP_LABEL"
+					multiple="true"
+					layout="joomla.form.field.list-fancy-select">
+				</field>
+				<field name="msgcreator"
+					type="list"
+					default="1"
+					label="PLG_CONTENT_AUTOMSG_CREATOR"
+					description="PLG_CONTENT_AUTOMSG_CREATOR_DESC"
+				>
+					<option value="0">Message identique</option>
+					<option value="1">Message spécifique</option>
+				</field>
+				<field name="msgauto"
+					type="radio" class="btn-group btn-group-yesno"
+					default="1"
+					label="PLG_CONTENT_AUTOMSG_AUTO"
+				>
+					<option value="0">Non</option>
+					<option value="1">Oui</option>
+				</field>
+				<field name="async"
+					type="radio" class="btn-group btn-group-yesno"
+					default="0"
+					label="PLG_CONTENT_AUTOMSG_ASYNC"
+					description="PLG_CONTENT_AUTOMSG_ASYNC_DESC"
+				>
+					<option value="0">Non</option>
+					<option value="1">Oui</option>
+				</field>
+			    <field type="note" name="note1" label="PLG_CONTENT_AUTOMSG_NOTE" heading="p" />
+			    <field showon="async:1" type="note" name="noteasync" label="PLG_CONTENT_AUTOMSG_ASYNC_NOTE" heading="p" />
+				<field name="subject" type="textarea" label="PLG_CONTENT_AUTOMSG_SUBJECT" cols="400" rows="4" filter="raw" 
+					default="Nouvel article: {title}"
+					/>			
+				<field name="body" type="textarea" label="PLG_CONTENT_AUTOMSG_BODY" cols="400" rows="4" filter="raw" 
+					default="Publication d'un article par : {creator}, titre : {title}.&lt;br&gt;Il est visible {url}"
+					/>			
+				<field showon="async:1" name="asyncline" type="textarea" label="PLG_CONTENT_AUTOMSG_ASYNC_LINE" cols="400" rows="4" filter="raw" 
+					default="{cat}, {creator}, {title}, {url}"
+					/>			
+				
+			</fieldset>
+		</fields>
+	</config>
+    <updateservers>
+        <server type="extension" name="cgzipdir">https://raw.githubusercontent.com/conseilgouz/updates_github/master/plg_content_automsg_update.xml</server>
+    </updateservers>
+	
+</extension>
