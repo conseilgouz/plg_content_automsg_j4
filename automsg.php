@@ -192,9 +192,9 @@ class PlgContentAutomsg extends CMSPlugin
 				$mailer->Encoding = 'base64';
 				$mailer->setBody($emailBody);
 				if ((($msgcreator == 1) && ($user_id <> $creatorId)) || ($msgcreator == 0)) { // don't send images to creator
-				    if ($this->needCatImg)
+				    if ($this->needCatImg && $cat_params->image)
 				        $mailer->AddEmbeddedImage(JPATH_ROOT.'/'.$cat_params->image,'catimg');
-			        if ($this->needIntroImg)
+			        if ($this->needIntroImg && $images->image_intro)
 			            $mailer->AddEmbeddedImage(JPATH_ROOT.'/'.$images->image_intro,'introimg');
 				}
 				$send = $mailer->Send();

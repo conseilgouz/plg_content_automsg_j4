@@ -7,7 +7,7 @@
 	<license>GNU General Public License version 2 or later; see LICENSE.txt</license>
 	<authorEmail>pascal.leconte@conseilgouz.com</authorEmail>
 	<authorUrl>www.conseilgouz.com</authorUrl>
-	<version>3.0.0</version>
+	<version>3.0.2</version>
 	<description>PLG_CONTENT_AUTOMSG_XML_DESCRIPTION</description>
 	<files>
 		<filename plugin="automsg">automsg.php</filename>
@@ -78,7 +78,7 @@
 		</fields>
 	</config>
     <updateservers>
-        <server type="extension" name="cgzipdir">https://raw.githubusercontent.com/conseilgouz/updates_github/master/plg_content_automsg_update.xml</server>
+        <server type="extension" name="automsg">https://raw.githubusercontent.com/conseilgouz/updates_github/master/plg_content_automsg_update.xml</server>
     </updateservers>
 	
 </extension>

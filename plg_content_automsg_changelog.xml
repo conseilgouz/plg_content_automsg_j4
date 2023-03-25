@@ -3,6 +3,30 @@
 		<element>automsg</element>
 		<type>plugin</type>
 		<group>content</group>
+		<version>3.0.2</version>
+        <note>
+            <item>Update : 25/03/2023</item>
+        </note>
+		<fix>
+			<item>handle missing category and/or intro images</item>
+		</fix>
+	</changelog>
+	<changelog>
+		<element>automsg</element>
+		<type>plugin</type>
+		<group>content</group>
+		<version>3.0.1</version>
+        <note>
+            <item>Update : 23/03/2023</item>
+        </note>
+		<fix>
+			<item>Wrong update name</item>
+		</fix>
+	</changelog>
+	<changelog>
+		<element>automsg</element>
+		<type>plugin</type>
+		<group>content</group>
 		<version>3.0.0</version>
         <note>
             <item>Update : 23/03/2023</item>
