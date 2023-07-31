@@ -1,11 +1,13 @@
 <?php
 /**
  * Plugin AutoMsg : send Email to selected users when an article is published
+ * Version		  : 3.1.0 
  *
- * @copyright   Copyright (C) 2023 Open Source Matters, Inc. All rights reserved.
- * @license     GNU General Public License version 2 or later; see LICENSE.txt
+ * @license http://www.gnu.org/licenses/gpl-2.0.html GNU/GPL
+ * @copyright (c) 2023 ConseilGouz. All Rights Reserved.
+ * @author ConseilGouz 
  */
-
+namespace ConseilGouz\Plugin\Content\AutoMsg\Extension;
 defined('_JEXEC') or die;
 use Joomla\CMS\Factory;
 use Joomla\CMS\Component\ComponentHelper;
@@ -16,36 +18,37 @@ use Joomla\CMS\HTML\HTMLHelper;
 use Joomla\CMS\Language\Text;
 use Joomla\Database\ParameterType;
 use Joomla\CMS\Plugin\CMSPlugin;
+use Joomla\Database\DatabaseAwareTrait;
+use Joomla\CMS\User\UserFactoryAwareTrait;
 
-class PlgContentAutomsg extends CMSPlugin
+final class AutoMsg extends CMSPlugin
 {
+    use DatabaseAwareTrait;
+    use UserFactoryAwareTrait;
+	
 	protected $itemtags, $info_cat, $tag_img,$cat_img, $url, $needCatImg,$needIntroImg,$deny;
 	
-    public function __construct(& $subject, $config)
-    {
-        parent::__construct($subject, $config);
-        $this->loadLanguage();
-    }
-	public function onContentAfterSave($context, $article, $isNew)
+	public function onContentAfterSave($context, $article, $isNew): void
 	{
 
 		// Check if this function is enabled.
 		if (!$this->params->def('email_new_fe', 1))
 		{
-			return true;
+			return ;
 		}
 
 		// Check this is a new article.
 		if (!$isNew)
 		{
-			return true;
+			return ;
 		}
 		$auto = $this->params->get('msgauto', '');		
 		if (($article->state == 1) && ($auto== 1))  {// article auto publié
 			$arr[0] = $article->id;
-			return self::onContentChangeState($context,$arr,$article->state);
+			self::onContentChangeState($context,$arr,$article->state);
+			return;
 		}
-	    return true;		
+	    return ;		
     }
 	/**
 	 * Change the state in core_content if the state in a table is changed

@@ -1,7 +1,7 @@
 <?php
 /**
-* AutoMsg Plugin  - Joomla 4.x Module 
-* Version			: 3.0.0
+* AutoMsg Plugin  - Joomla 4.x/5.x plugin
+* Version			: 3.1.0
 * copyright 		: Copyright (C) 2023 ConseilGouz. All rights reserved.
 * license    		: http://www.gnu.org/licenses/gpl-2.0.html GNU/GPL
 */
@@ -9,10 +9,10 @@
 defined('_JEXEC') or die;
 use Joomla\CMS\Factory;
 use Joomla\CMS\Language\Text;
-use Joomla\CMS\Filesystem\Folder;
+use Joomla\Filesystem\Folder;
+use Joomla\Filesystem\File;
 use Joomla\CMS\Version;
-use Joomla\CMS\Filesystem\File;
-
+use Joomla\CMS\Log\Log;
 class plgcontentautomsgInstallerScript
 {
 	private $min_joomla_version      = '4.0.0';
@@ -22,6 +22,7 @@ class plgcontentautomsgInstallerScript
 	private $extname                 = 'automsg';
 	private $previous_version        = '';
 	private $dir           = null;
+	private $lang;
 	private $installerName = 'plgcontentautomsginstaller';
 	public function __construct()
 	{
@@ -66,9 +67,9 @@ class plgcontentautomsgInstallerScript
     }
 	private function postinstall_cleanup() {
 
-		$obsloteFolders = ['language'];
+		$obsoleteFolders = ['language'];
 		// Remove plugins' files which load outside of the component. If any is not fully updated your site won't crash.
-		foreach ($obsloteFolders as $folder)
+		foreach ($obsoleteFolders as $folder)
 		{
 			$f = JPATH_SITE . '/plugins/plg_content_'.$this->extname.'/' . $folder;
 
@@ -78,13 +79,14 @@ class plgcontentautomsgInstallerScript
 			}
 			Folder::delete($f);
 		}
-		$langFiles = [
+		$obsleteFiles = [
 			sprintf("%s/language/en-GB/en-GB.plg_content_%s.ini", JPATH_ADMINISTRATOR, $this->extname),
 			sprintf("%s/language/en-GB/en-GB.plg_content_%s.sys.ini", JPATH_ADMINISTRATOR, $this->extname),
 			sprintf("%s/language/fr-FR/fr-FR.plg_content_%s.ini", JPATH_ADMINISTRATOR, $this->extname),
-			sprintf("%s/language/fr-FR/fr-FR.plg_content_%s.sys.ini", JPATH_ADMINISTRATOR, $this->extname)
+			sprintf("%s/language/fr-FR/fr-FR.plg_content_%s.sys.ini", JPATH_ADMINISTRATOR, $this->extname),
+			JPATH_SITE . '/plugins/plg_content_'.$this->extname.'/automsg.php'
 		];
-		foreach ($langFiles as $file) {
+		foreach ($obsleteFiles as $file) {
 			if (@is_file($file)) {
 				File::delete($file);
 			}
@@ -102,14 +104,15 @@ class plgcontentautomsgInstallerScript
         try {
 	        $db->execute();
         }
-        catch (RuntimeException $e) {
-            JLog::add('unable to enable '.$this->name, JLog::ERROR, 'jerror');
+        catch (\RuntimeException $e) {
+            Log::add('unable to enable '.$this->name, Log::ERROR, 'jerror');
         }
 		// automsg replaces publishedarticle : copy its parmeters and remove it if exists
 		$this->removePublishedArticle();
 	}
 	private function removePublishedArticle() {
 		// Remove publishedarticle folder.
+		$obsloteFolders = ['language'];
 		foreach ($obsloteFolders as $folder)
 		{
 			$f = JPATH_SITE . '/plugins/content/publishedarticle';
@@ -161,8 +164,8 @@ class plgcontentautomsgInstallerScript
         try {
 	        $db->execute();
         }
-        catch (RuntimeException $e) {
-            JLog::add('unable to enable '.$this->name, JLog::ERROR, 'jerror');
+        catch (\RuntimeException $e) {
+            Log::add('unable to enable '.$this->name, Log::ERROR, 'jerror');
         }
 		// delete publishedarticle plugin
         $conditions = array(
@@ -176,8 +179,8 @@ class plgcontentautomsgInstallerScript
         try {
 	        $db->execute();
         }
-        catch (RuntimeException $e) {
-            JLog::add('unable to delete publishedarticle from extensions', JLog::ERROR, 'jerror');
+        catch (\RuntimeException $e) {
+            Log::add('unable to delete publishedarticle from extensions', Log::ERROR, 'jerror');
         }
 		// delete #__update_sites (keep showing update even if system publishedarticle is dissabled)
         $query = $db->getQuery(true);
@@ -200,8 +203,8 @@ class plgcontentautomsgInstallerScript
         try {
 	        $db->execute();
         }
-        catch (RuntimeException $e) {
-            JLog::add('unable to delete publishedarticle from updata_sites', JLog::ERROR, 'jerror');
+        catch (\RuntimeException $e) {
+            Log::add('unable to delete publishedarticle from updata_sites', Log::ERROR, 'jerror');
         }
 		
 	}
@@ -240,7 +243,7 @@ class plgcontentautomsgInstallerScript
 	}
 	private function uninstallInstaller()
 	{
-		if ( ! JFolder::exists(JPATH_PLUGINS . '/system/' . $this->installerName)) {
+		if ( ! is_dir(JPATH_PLUGINS . '/system/' . $this->installerName)) {
 			return;
 		}
 		$this->delete([

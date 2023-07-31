@@ -2,22 +2,27 @@
 <extension version="1.0" type="plugin" group="content" method="upgrade">
 	<name>PLG_CONTENT_AUTOMSG</name>
 	<author>conseilgouz</author>
-	<creationDate>2023/03/21</creationDate>
+	<creationDate>2023/07/31</creationDate>
 	<copyright>Copyright (C) 2023 ConseilGouz. All rights reserved.</copyright>
 	<license>GNU General Public License version 2 or later; see LICENSE.txt</license>
 	<authorEmail>pascal.leconte@conseilgouz.com</authorEmail>
 	<authorUrl>www.conseilgouz.com</authorUrl>
-	<version>3.0.2</version>
+	<version>3.1.0</version>
 	<description>PLG_CONTENT_AUTOMSG_XML_DESCRIPTION</description>
 	<files>
-		<filename plugin="automsg">automsg.php</filename>
+		<folder plugin="automsg">services</folder>
+		<folder>src</folder>
 		<filename >index.html</filename>
 	</files>
     <languages>
 		<language tag="fr-FR">language/fr-FR/plg_content_automsg.ini</language>
 		<language tag="fr-FR">language/fr-FR/plg_content_automsg.sys.ini</language>
+		<language tag="en-GB">language/en-GB/plg_content_automsg.ini</language>
+		<language tag="en-GB">language/en-GB/plg_content_automsg.sys.ini</language>
 	</languages>
 	<scriptfile>script.php</scriptfile>
+	<namespace path="src">ConseilGouz\Plugin\Content\AutoMsg</namespace>
+	
 	<changelogurl>https://raw.githubusercontent.com/conseilgouz/plg_content_automsg_j4/master/plg_content_automsg_changelog.xml</changelogurl>
 	
 	<config>
