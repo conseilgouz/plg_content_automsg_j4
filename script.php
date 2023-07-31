@@ -1,7 +1,7 @@
 <?php
 /**
 * AutoMsg Plugin  - Joomla 4.x/5.x plugin
-* Version			: 3.1.0
+* Version			: 3.1.1
 * copyright 		: Copyright (C) 2023 ConseilGouz. All rights reserved.
 * license    		: http://www.gnu.org/licenses/gpl-2.0.html GNU/GPL
 */
@@ -84,7 +84,7 @@ class plgcontentautomsgInstallerScript
 			sprintf("%s/language/en-GB/en-GB.plg_content_%s.sys.ini", JPATH_ADMINISTRATOR, $this->extname),
 			sprintf("%s/language/fr-FR/fr-FR.plg_content_%s.ini", JPATH_ADMINISTRATOR, $this->extname),
 			sprintf("%s/language/fr-FR/fr-FR.plg_content_%s.sys.ini", JPATH_ADMINISTRATOR, $this->extname),
-			JPATH_SITE . '/plugins/plg_content_'.$this->extname.'/automsg.php'
+			JPATH_SITE . '/plugins/content/'.$this->extname.'/automsg.php'
 		];
 		foreach ($obsleteFiles as $file) {
 			if (@is_file($file)) {
