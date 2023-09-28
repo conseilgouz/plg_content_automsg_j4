@@ -19,12 +19,12 @@ use Joomla\CMS\Language\Text;
 use Joomla\Database\ParameterType;
 use Joomla\CMS\Plugin\CMSPlugin;
 use Joomla\Database\DatabaseAwareTrait;
-use Joomla\CMS\User\UserFactoryAwareTrait;
+//use Joomla\CMS\User\UserFactoryAwareTrait;
 
 final class AutoMsg extends CMSPlugin
 {
     use DatabaseAwareTrait;
-    use UserFactoryAwareTrait;
+//    use UserFactoryAwareTrait;
 	
 	protected $itemtags, $info_cat, $tag_img,$cat_img, $url, $needCatImg,$needIntroImg,$deny;
 	

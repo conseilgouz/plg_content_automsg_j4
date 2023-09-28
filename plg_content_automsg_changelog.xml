@@ -3,6 +3,18 @@
 		<element>automsg</element>
 		<type>plugin</type>
 		<group>content</group>
+		<version>3.1.2</version>
+        <note>
+            <item>Update : 28/09/2023</item>
+        </note>
+		<fix>
+			<item>UserFactoryAwareTrait error</item>
+		</fix>
+	</changelog>
+	<changelog>
+		<element>automsg</element>
+		<type>plugin</type>
+		<group>content</group>
 		<version>3.1.1</version>
         <note>
             <item>Update : 31/07/2023</item>
