@@ -153,7 +153,7 @@ final class AutoMsg extends CMSPlugin
             $users[] = $creatorId;
         }
         $creator = Factory::getApplication()->getIdentity($creatorId);
-        $this->url = "<a href='".URI::root()."index.php?option=com_content&view=article&id=".$article->id."' target='_blank'>".Text::_("PLG_CONTENT_AUTOMSG_CLICK")."</a>";
+        $this->url = "<a href='".URI::root()."index.php?option=com_content&view=article&id=".$article->id."' target='_blank'>".Text::_('PLG_CONTENT_AUTOMSG_CLICK')."</a>";
         $this->info_cat = $this->getCategoryName($article->catid);
         $cat_params = json_decode($this->info_cat[0]->params);
         $this->cat_img = "";
