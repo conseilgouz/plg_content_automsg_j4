@@ -145,6 +145,8 @@ final class AutoMsg extends CMSPlugin
     }
     private function sendEmails($article, $users, $tokens)
     {
+        $lang = Factory::getApplication()->getLanguage();
+        $lang->load('plg_content_automsg');
         $config = Factory::getApplication()->getConfig();
         $msgcreator = $this->params->get('msgcreator', 0);
 
@@ -193,8 +195,6 @@ final class AutoMsg extends CMSPlugin
             $data['sitename'] = $config->get('sitename');
             $data['email'] = PunycodeHelper::toPunycode($receiver->get('email'));
 
-            $lang = Factory::getApplication()->getLanguage();
-            $lang->load('plg_content_automsg');
             if (($user_id == $creatorId) && ($msgcreator == 1)) { // mail specifique au createur de l'article
                 $emailSubject = $this->creatorSubject($creator, $article, Text::_('PLG_CONTENT_AUTOMSG_PUBLISHED_SUBJECT'));
                 $emailBody = $this->creatorBody($creator, $article, Text::_('PLG_CONTENT_AUTOMSG_PUBLISHED_MSG'));
