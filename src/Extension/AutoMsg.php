@@ -1,10 +1,10 @@
 <?php
 /**
  * Plugin AutoMsg : send Email to selected users when an article is published
- * Version		  : 3.1.0
+ * Version		  : 3.1.5
  *
  * @license http://www.gnu.org/licenses/gpl-2.0.html GNU/GPL
- * @copyright (c) 2023 ConseilGouz. All Rights Reserved.
+ * @copyright (c) 2024 ConseilGouz. All Rights Reserved.
  * @author ConseilGouz
  */
 
@@ -16,13 +16,14 @@ use Joomla\CMS\Factory;
 use Joomla\CMS\HTML\HTMLHelper;
 use Joomla\CMS\Language\Text;
 use Joomla\CMS\Log\Log;
+use Joomla\CMS\Mail\Exception\MailDisabledException;
 use Joomla\CMS\Plugin\CMSPlugin;
 use Joomla\CMS\String\PunycodeHelper;
 use Joomla\CMS\Uri\Uri;
 use Joomla\Component\Content\Site\Model\ArticleModel;
 use Joomla\Database\DatabaseAwareTrait;
 use Joomla\Database\ParameterType;
-use Joomla\Database\DatabaseInterface;
+use PHPMailer\PHPMailer\Exception as phpMailerException;
 
 final class AutoMsg extends CMSPlugin
 {
@@ -222,13 +223,18 @@ final class AutoMsg extends CMSPlugin
                     $mailer->AddEmbeddedImage(JPATH_ROOT.'/'.$images->image_intro, 'introimg');
                 }
             }
-            $send = $mailer->Send();
-            if ($this->params->get('log', 0)) { // need to log msgs
-                if (!$send) {
-                    Log::add('Erreur ----> Article : '.$article->title.' non envoyé à '.$receiver->get('email'), Log::ERROR, 'plg_content_automsg');
+            try {
+                $send = $mailer->Send();
+            } catch (MailDisabledException | phpMailerException $e) {
+                if ($this->params->get('log', 0)) { // need to log msgs
+                    Log::add('Erreur ----> Article : '.$article->title.' non envoyé à '.$receiver->get('email').'/'.$e->getMessage(), Log::ERROR, 'plg_content_automsg');
                 } else {
-                    Log::add('Article OK : '.$article->title.' envoyé à '.$receiver->get('email'), Log::DEBUG, 'plg_content_automsg');
+                    Factory::getApplication()->enqueueMessage($e->getMessage().'/'.$receiver->get('email'), 'error');
                 }
+                continue; // try next one
+            }
+            if ($this->params->get('log', 0)) { // need to log msgs
+                Log::add('Article OK : '.$article->title.' envoyé à '.$receiver->get('email'), Log::DEBUG, 'plg_content_automsg');
             }
         }
     }
