@@ -1,7 +1,7 @@
 <?php
 /**
  * Plugin AutoMsg : send Email to selected users when an article is published
- * Version		  : 3.1.5
+ * Version		  : 3.2.0
  *
  * @license http://www.gnu.org/licenses/gpl-2.0.html GNU/GPL
  * @copyright (c) 2024 ConseilGouz. All Rights Reserved.
@@ -16,14 +16,13 @@ use Joomla\CMS\Factory;
 use Joomla\CMS\HTML\HTMLHelper;
 use Joomla\CMS\Language\Text;
 use Joomla\CMS\Log\Log;
-use Joomla\CMS\Mail\Exception\MailDisabledException;
+use Joomla\CMS\Mail\MailTemplate;
 use Joomla\CMS\Plugin\CMSPlugin;
-use Joomla\CMS\String\PunycodeHelper;
+use Joomla\CMS\User\UserFactoryInterface;
 use Joomla\CMS\Uri\Uri;
 use Joomla\Component\Content\Site\Model\ArticleModel;
 use Joomla\Database\DatabaseAwareTrait;
 use Joomla\Database\ParameterType;
-use PHPMailer\PHPMailer\Exception as phpMailerException;
 
 final class AutoMsg extends CMSPlugin
 {
@@ -146,95 +145,83 @@ final class AutoMsg extends CMSPlugin
     }
     private function sendEmails($article, $users, $tokens)
     {
-        $lang = Factory::getApplication()->getLanguage();
+        $app = Factory::getApplication();
+        $lang = $app->getLanguage();
         $lang->load('plg_content_automsg');
-        $config = Factory::getApplication()->getConfig();
+        $config = $app->getConfig();
         $msgcreator = $this->params->get('msgcreator', 0);
+        $libdateformat = "d/M/Y h:m";
 
         $creatorId = $article->created_by;
         if (!in_array($creatorId, $users) && (!in_array($creatorId, $this->deny))) { // creator not in users array : add it
             $users[] = $creatorId;
         }
-        $creator = Factory::getApplication()->getIdentity($creatorId);
+        $creator = $app->getIdentity($creatorId);
         $this->url = "<a href='".URI::root()."index.php?option=com_content&view=article&id=".$article->id."' target='_blank'>".Text::_('PLG_CONTENT_AUTOMSG_CLICK')."</a>";
         $this->info_cat = $this->getCategoryName($article->catid);
         $cat_params = json_decode($this->info_cat[0]->params);
         $this->cat_img = "";
         if ($cat_params->image != "") {
-            $this->cat_img = '<img src="cid:catimg"  alt="'.$cat_params->image_alt.'" /> ';
+            $img = HTMLHelper::cleanImageURL($cat_params->image_intro);
+            $this->cat_img = '<img src="'.URI::root().pathinfo($img->url)['dirname'].'/'.pathinfo($img->url)['basename'].'" />';
         }
         $images  = json_decode($article->images);
         $article->introimg = "";
         if (!empty($images->image_intro)) { // into img exists
-            $uneimage = '<img src="cid:introimg" alt="'.htmlspecialchars($images->image_intro_alt).'">';
-            $article->introimg = $uneimage;
+            $img = HTMLHelper::cleanImageURL($images->image_intro);
+            $article->introimg = '<img src="'.URI::root().pathinfo($img->url)['dirname'].'/'.pathinfo($img->url)['basename'].'" />';
         }
         $article_tags = self::getArticleTags($article->id);
         $this->itemtags = "";
-        foreach ($article_tags[$article->id] as $tag) {
+        foreach ($article_tags as $tag) {
             $this->itemtags .= '<span class="iso_tag_'.$tag->alias.'">'.(($this->itemtags == "") ? $tag->tag : "<span class='iso_tagsep'><span>-</span></span>".$tag->tag).'</span>';
         }
         $this->needCatImg = false;
         $this->needIntroImg = false;
-        $subject = $this->createSubject($creator, $article);
-        $bodyStd = $this->createBody($creator, $article);
+
         foreach ($users as $user_id) {
-            // Load language for messaging
-            $receiver = Factory::getApplication()->getIdentity($user_id);
-            $body = $bodyStd;
-            if (strpos($body, '{unsubscribe}')) {
-                $unsubscribe = "";
-                if ($tokens[$user_id]) {
-                    $unsubscribe = "<a href='".URI::root()."index.php?option=com_automsg&view=automsg&layout=edit&token=".$tokens[$user_id]."' target='_blank'>".Text::_('PLG_CONTENT_AUTOMSG_UNSUBSCRIBE')."</a>";
-                }
-                $body = str_replace('{unsubscribe}', $unsubscribe, $body);
+            $receiver = Factory::getContainer()->get(UserFactoryInterface::class)->loadUserById($user_id);
+            $unsubscribe = "";
+            if ($tokens[$user_id]) {
+                $unsubscribe = "<a href='".URI::root()."index.php?option=com_automsg&view=automsg&layout=edit&token=".$tokens[$user_id]."' target='_blank'>".Text::_('PLG_CONTENT_AUTOMSG_UNSUBSCRIBE')."</a>";
             }
             $go = false;
-            $data = $receiver->getProperties();
-            $data['fromname'] = $config->get('fromname');
-            $data['mailfrom'] = $config->get('mailfrom');
-            $data['sitename'] = $config->get('sitename');
-            $data['email'] = PunycodeHelper::toPunycode($receiver->get('email'));
-
+            // Collect data for mail
+            $data = [
+                'creator'   => $creator->name,
+                'id'        => $article->id,
+                'title'     => $article->title,
+                'cat'       => $this->info_cat[0]->title,
+                'date'      => HTMLHelper::_('date', $article->created, $libdateformat),
+                'intro'     => $article->introtext,
+                'catimg'    => $this->cat_img,
+                'url'       => $this->url,
+                'introimg'  => $article->introimg,
+                'subtitle'  => $article->subtitle,
+                'tags'      => $this->itemtags,
+                'featured'  => $article->featured,
+                'unsubscribe'   => $unsubscribe
+            ];
             if (($user_id == $creatorId) && ($msgcreator == 1)) { // mail specifique au createur de l'article
-                $emailSubject = $this->creatorSubject($creator, $article, Text::_('PLG_CONTENT_AUTOMSG_PUBLISHED_SUBJECT'));
-                $emailBody = $this->creatorBody($creator, $article, Text::_('PLG_CONTENT_AUTOMSG_PUBLISHED_MSG'));
-            } else { // mail pour tous les autres
-                $emailSubject = $subject;
-                $emailBody = $body;
+                $mailer = new MailTemplate('plg_content_automsg.ownermail', $receiver->getParam('language', $app->get('language')));
+            } else {
+                $mailer = new MailTemplate('plg_content_automsg.usermail', $receiver->getParam('language', $app->get('language')));
             }
-            $mailer = Factory::getMailer();
-            $config = Factory::getApplication()->getConfig();
-            $sender = array(
-                $config->get('mailfrom'),
-                $config->get('fromname')
-            );
-            $mailer->setSender($sender);
-            $mailer->addRecipient($data['email']);
-            $mailer->setSubject($emailSubject);
-            $mailer->isHtml(true);
-            $mailer->Encoding = 'base64';
-            $mailer->setBody($emailBody);
-            if ((($msgcreator == 1) && ($user_id <> $creatorId)) || ($msgcreator == 0)) { // don't send images to creator
-                if ($this->needCatImg && $cat_params->image) {
-                    $mailer->AddEmbeddedImage(JPATH_ROOT.'/'.$cat_params->image, 'catimg');
-                }
-                if ($this->needIntroImg && $images->image_intro) {
-                    $mailer->AddEmbeddedImage(JPATH_ROOT.'/'.$images->image_intro, 'introimg');
-                }
-            }
+            $mailer->addTemplateData($data);
+            $mailer->addRecipient($receiver->email, $receiver->name);
+
             try {
-                $send = $mailer->Send();
-            } catch (MailDisabledException | phpMailerException $e) {
+                $res = $mailer->send();
+            } catch (\Exception $e) {
                 if ($this->params->get('log', 0)) { // need to log msgs
-                    Log::add('Erreur ----> Article : '.$article->title.' non envoyé à '.$receiver->get('email').'/'.$e->getMessage(), Log::ERROR, 'plg_content_automsg');
+                    Log::add('Erreur ----> Article : '.$article->title.' non envoyé à '.$receiver->email.'/'.$e->getMessage(), Log::ERROR, 'plg_content_automsg');
                 } else {
-                    Factory::getApplication()->enqueueMessage($e->getMessage().'/'.$receiver->get('email'), 'error');
+                    $app->enqueueMessage($e->getMessage().'/'.$receiver->email, 'error');
                 }
-                continue; // try next one
+                continue;
             }
-            if ($this->params->get('log', 0)) { // need to log msgs
-                Log::add('Article OK : '.$article->title.' envoyé à '.$receiver->get('email'), Log::DEBUG, 'plg_content_automsg');
+            if ($this->params->get('log', 0) == 2) { // need to log all msgs
+                Log::add('Article OK : '.$article->title.' envoyé à '.$receiver->email, Log::DEBUG, 'plg_content_automsg');
             }
         }
     }
@@ -271,73 +258,9 @@ final class AutoMsg extends CMSPlugin
         );
         $db->setQuery($query);
         $db->execute();
-        if ($this->params->get('log', 0)) { // need to log msgs
+        if ($this->params->get('log', 0) == 2) { // need to log all msgs
             Log::add('Article Async : '.$article->title, Log::DEBUG, 'plg_content_automsg');
         }
-    }
-    private function createSubject($creator, $article)
-    {
-        $libdateformat = "d/M/Y h:m";
-        $subject = $this->params->get('subject', "");
-        if (strpos($subject, '{catimg}')) {
-            $this->needCatImg = true;
-        }
-        if (strpos($subject, '{introimg}')) {
-            $this->needIntroImg = true;
-        }
-        $arr_css = array("{creator}" => $creator->name,"{id}" => $article->id,"{title}" => $article->title, "{cat}" => $this->info_cat[0]->title,"{date}" => HTMLHelper::_('date', $article->created, $libdateformat), "{intro}" => $article->introtext, "{catimg}" => $this->cat_img, "{url}" => $this->url, "{introimg}" => $article->introimg, "{subtitle}" => $article->subtitle, "{tags}" => $itemtags,"{featured}" => $article->featured);
-        foreach ($arr_css as $key_c => $val_c) {
-            $subject = str_replace($key_c, Text::_($val_c), $subject);
-        }
-        return $subject;
-    }
-    private function creatorSubject($creator, $article, $msg)
-    {
-        $libdateformat = "d/M/Y h:m";
-        $subject = $msg;
-        if (strpos($subject, '{catimg}')) {
-            $this->needCatImg = true;
-        }
-        if (strpos($subject, '{introimg}')) {
-            $this->needIntroImg = true;
-        }
-        $arr_css = array("{creator}" => $creator->name,"{id}" => $article->id,"{title}" => $article->title, "{cat}" => $this->info_cat[0]->title,"{date}" => HTMLHelper::_('date', $article->created, $libdateformat), "{intro}" => $article->introtext, "{catimg}" => $this->cat_img, "{url}" => $this->url, "{introimg}" => $article->introimg, "{subtitle}" => $article->subtitle, "{tags}" => $itemtags,"{featured}" => $article->featured);
-        foreach ($arr_css as $key_c => $val_c) {
-            $subject = str_replace($key_c, Text::_($val_c), $subject);
-        }
-        return $subject;
-    }
-    private function createBody($creator, $article)
-    {
-        $libdateformat = "d/M/Y h:m";
-        $body = $this->params->get('body', "");
-        if (strpos($body, '{catimg}')) {
-            $this->needCatImg = true;
-        }
-        if (strpos($body, '{introimg}')) {
-            $this->needIntroImg = true;
-        }
-        $arr_css = array("{creator}" => $creator->name,"{id}" => $article->id,"{title}" => $article->title, "{cat}" => $this->info_cat[0]->title,"{date}" => HTMLHelper::_('date', $article->created, $libdateformat), "{intro}" => $article->introtext, "{catimg}" => $this->cat_img, "{url}" => $this->url, "{introimg}" => $article->introimg, "{subtitle}" => $article->subtitle, "{tags}" => $itemtags,"{featured}" => $article->featured);
-        foreach ($arr_css as $key_c => $val_c) {
-            $body = str_replace($key_c, Text::_($val_c), $body);
-        }
-        return $body;
-    }
-    private function creatorBody($creator, $article, $msg)
-    {
-        $libdateformat = "d/M/Y h:m";
-        $body = $msg;
-        if (strpos($body, '{catimg}')) {
-            $this->needCatImg = true;
-        }
-        if (strpos($body, '{introimg}')) {
-            $this->needIntroImg = true;
-        }
-        $arr_css = array("{creator}" => $creator->name,"{id}" => $article->id,"{title}" => $article->title, "{cat}" => $this->info_cat[0]->title,"{date}" => HTMLHelper::_('date', $article->created, $libdateformat), "{intro}" => $article->introtext, "{catimg}" => $this->cat_img, "{url}" => $this->url, "{introimg}" => $article->introimg, "{subtitle}" => $article->subtitle, "{tags}" => $itemtags,"{featured}" => $article->featured);
-        foreach ($arr_css as $key_c => $val_c) {
-            $body = str_replace($key_c, Text::_($val_c), $body);
-        }
-        return $body;
     }
     private function getCategoryName($id)
     {
@@ -367,7 +290,7 @@ final class AutoMsg extends CMSPlugin
     private function getAutomsgToken($users)
     {
         $tokens = array();
-        $db = Factory::getDbo();
+        $db = $this->getDatabase();
         foreach ($users as $user) {
             $token = $this->checkautomsgtoken($user);
             if ($token) {// token found

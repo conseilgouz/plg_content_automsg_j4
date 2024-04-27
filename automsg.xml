@@ -68,21 +68,12 @@
 					<option value="1">Oui</option>
 				</field>
 			    <field type="note" name="note1" label="PLG_CONTENT_AUTOMSG_NOTE" heading="p" />
-			    <field showon="async:1" type="note" name="noteasync" label="PLG_CONTENT_AUTOMSG_ASYNC_NOTE" heading="p" />
-				<field name="subject" type="textarea" label="PLG_CONTENT_AUTOMSG_SUBJECT" cols="400" rows="4" filter="raw" 
-					default="Nouvel article: {title}"
-					/>			
-				<field name="body" type="textarea" label="PLG_CONTENT_AUTOMSG_BODY" cols="400" rows="4" filter="raw" 
-					default="Publication d'un article par : {creator}, titre : {title}.&lt;br&gt;Il est visible {url}"
-					/>			
-				<field showon="async:1" name="asyncline" type="textarea" label="PLG_CONTENT_AUTOMSG_ASYNC_LINE" cols="400" rows="4" filter="raw" 
-					default="{cat}, {creator}, {title}, {url}"
-					/>			
 				<field name="log"
 					type="radio" class="btn-group btn-group-yesno" default="0"
 					label="PLG_CONTENT_AUTOMSG_LOG" description="PLG_CONTENT_AUTOMSG_LOG_DESC">
 					<option value="0">Non</option>
-					<option value="1">Oui</option>
+					<option value="1">Erreurs</option>
+					<option value="21">JALL</option>
 				</field>
 				
 			</fieldset>

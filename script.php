@@ -9,11 +9,14 @@
 defined('_JEXEC') or die;
 use Joomla\CMS\Factory;
 use Joomla\CMS\Language\Text;
+use Joomla\CMS\Log\Log;
+use Joomla\CMS\Plugin\PluginHelper;
+use Joomla\CMS\Version;
+use Joomla\Component\Categories\Administrator\Model\CategoryModel;
+use Joomla\Component\Mails\Administrator\Model\TemplateModel;
+use Joomla\Database\DatabaseInterface;
 use Joomla\Filesystem\Folder;
 use Joomla\Filesystem\File;
-use Joomla\Component\Categories\Administrator\Model\CategoryModel;
-use Joomla\CMS\Version;
-use Joomla\CMS\Log\Log;
 
 class plgcontentautomsgInstallerScript
 {
@@ -24,6 +27,7 @@ class plgcontentautomsgInstallerScript
     private $extname                 = 'automsg';
     private $previous_version        = '';
     private $dir           = null;
+    private $db;
     private $lang;
     private $installerName = 'plgcontentautomsginstaller';
     public function __construct()
@@ -52,6 +56,8 @@ class plgcontentautomsgInstallerScript
 
     public function postflight($type, $parent)
     {
+        $this->db = Factory::getContainer()->get(DatabaseInterface::class);
+
         if (($type == 'install') || ($type == 'update')) { // remove obsolete dir/files
             $this->postinstall_cleanup();
         }
@@ -70,22 +76,28 @@ class plgcontentautomsgInstallerScript
     }
     private function postinstall_cleanup()
     {
-
         // create user notes
-
-        $db = Factory::getDbo();
+        $db = $this->db;
         $query = $db->getQuery(true);
         $query->select('id');
         $query->from('#__categories');
         $query->where('extension = ' . $db->quote('com_users'));
         $query->where('alias = ' . $db->quote('cg-auto'));
         $db->setQuery($query);
-
         $result = $db->loadResult();
         if (!$result) {
             $this->create_notes_category();
         }
-
+        // create mail template
+        $query = $db->getQuery(true);
+        $query->select('count(`template_id`)');
+        $query->from('#__mail_templates');
+        $query->where('extension = ' . $db->quote('plg_content_automsg'));
+        $db->setQuery($query);
+        $result = $db->loadResult();
+        if (!$result) {
+            $this->create_mail_templates();
+        }
         $obsoleteFolders = ['language'];
         // Remove plugins' files which load outside of the component. If any is not fully updated your site won't crash.
         foreach ($obsoleteFolders as $folder) {
@@ -108,7 +120,7 @@ class plgcontentautomsgInstallerScript
                 File::delete($file);
             }
         }
-        $db = Factory::getDbo();
+        $db = $this->db;
         $conditions = array(
             $db->qn('type') . ' = ' . $db->q('plugin'),
             $db->qn('element') . ' = ' . $db->quote($this->extname)
@@ -139,9 +151,52 @@ class plgcontentautomsgInstallerScript
         $data['published'] = 1;
 
         $table = $category->getTable();
-        $category->save($data);
+        $table->save($data);
     }
-
+    private function create_mail_templates()
+    {
+        // check if defined in previous version
+        $plugin = PluginHelper::getPlugin('content', 'automsg');
+        if ($plugin) { // automsg was defined : get old values
+            $params = json_decode($plugin->params);
+        }
+        $template = new TemplateModel(array('ignore_request' => true));
+        $table = $template->getTable();
+        $data = [];
+        // owner mail template
+        $data['template_id'] = 'plg_content_automsg.ownermail';
+        $data['extension'] = 'plg_content_automsg';
+        $data['language'] = '';
+        $data['subject'] = 'PLG_CONTENT_AUTOMSG_PUBLISHED_SUBJECT';
+        $data['body'] = 'PLG_CONTENT_AUTOMSG_PUBLISHED_MSG';
+        $data['htmlbody'] = '';
+        $data['attachments'] = '';
+        $data['params'] = '{"tags": ["creator", "title", "cat", "intro", "catimg", "url", "introimg", "subtitle", "tags", "date","featured","unsubscribe"]}';
+        $table->save($data);
+        // other users mail template
+        $data['template_id'] = 'plg_content_automsg.usermail';
+        if ($plugin) {
+            $subject = $this->tagstouppercase($params->subject);
+            $data['subject'] = $subject;
+            $body = $this->tagstouppercase($params->body);
+            $data['body'] = $body;
+        } else {
+            $data['subject'] = 'PLG_CONTENT_AUTOMSG_USER_SUBJECT';
+            $data['body'] = 'PLG_CONTENT_AUTOMSG_USER_MSG';
+        }
+        $table->save($data);
+    }
+    private function tagstouppercase($text)
+    {
+        $pattern = "/\\{(.*?)\\}/i";
+        if (preg_match_all($pattern, $text, $matches)) {
+            foreach ($matches[0] as $i => $match) {
+                $replacement = strtoupper($match);
+                $text = str_replace($match, $replacement, $text);
+            }
+        }
+        return $text;
+    }
     private function removePublishedArticle()
     {
         // Remove publishedarticle folder.
@@ -168,7 +223,7 @@ class plgcontentautomsgInstallerScript
             }
         }
         // get published article params and copy it into automsg plugin
-        $db = Factory::getDbo();
+        $db = $this->db;
         $query = $db->getQuery(true);
         $query->select('params')
         ->from($db->quoteName('#__extensions'))
@@ -181,7 +236,6 @@ class plgcontentautomsgInstallerScript
             return true;
         }
         // let's copy those parmas
-        $db = Factory::getDbo();
         $conditions = array(
             $db->qn('type') . ' = ' . $db->q('plugin'),
             $db->qn('element') . ' = ' . $db->quote($this->extname),
@@ -278,7 +332,7 @@ class plgcontentautomsgInstallerScript
             JPATH_PLUGINS . '/system/' . $this->installerName . '/language',
             JPATH_PLUGINS . '/system/' . $this->installerName,
         ]);
-        $db = Factory::getDbo();
+        $db = $this->db;
         $query = $db->getQuery(true)
             ->delete('#__extensions')
             ->where($db->quoteName('element') . ' = ' . $db->quote($this->installerName))
@@ -288,5 +342,16 @@ class plgcontentautomsgInstallerScript
         $db->execute();
         Factory::getCache()->clean('_system');
     }
+    public function delete($files = [])
+    {
+        foreach ($files as $file) {
+            if (is_dir($file)) {
+                Folder::delete($file);
+            }
 
+            if (is_file($file)) {
+                File::delete($file);
+            }
+        }
+    }
 }
