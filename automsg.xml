@@ -2,12 +2,12 @@
 <extension version="4.0" type="plugin" group="content" method="upgrade">
 	<name>PLG_CONTENT_AUTOMSG</name>
 	<author>conseilgouz</author>
-	<creationDate>2024/04/26</creationDate>
+	<creationDate>2024/04/28</creationDate>
 	<copyright>Copyright (C) 2024 ConseilGouz. All rights reserved.</copyright>
 	<license>GNU General Public License version 3 or later; see LICENSE.txt</license>
 	<authorEmail>pascal.leconte@conseilgouz.com</authorEmail>
 	<authorUrl>www.conseilgouz.com</authorUrl>
-	<version>3.1.5</version>
+	<version>3.2.0</version>
 	<description>PLG_CONTENT_AUTOMSG_XML_DESCRIPTION</description>
 	<files>
 		<folder plugin="automsg">services</folder>
@@ -28,18 +28,18 @@
 	<config>
 		<fields name="params">
 			<fieldset name="basic">
+				<field name="usergroups"
+					type="usergrouplist"
+					description="PLG_CONTENT_AUTOMSG_USERGROUP_DESC"
+					label="PLG_CONTENT_AUTOMSG_USERGROUP_LABEL"
+					multiple="true" required="true"
+					layout="joomla.form.field.list-fancy-select">
+				</field>
 				<field name="categories"
 						type="category"	multiple="true"	extension="com_content"
 						layout="joomla.form.field.list-fancy-select"
 						label="JCATEGORIES"
 						>
-				</field>
-				<field name="usergroups"
-					type="usergrouplist"
-					description="PLG_CONTENT_AUTOMSG_USERGROUP_DESC"
-					label="PLG_CONTENT_AUTOMSG_USERGROUP_LABEL"
-					multiple="true"
-					layout="joomla.form.field.list-fancy-select">
 				</field>
 				<field name="msgcreator"
 					type="list"
