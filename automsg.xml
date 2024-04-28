@@ -65,7 +65,7 @@
 				<field name="chkasync" type="sql"
                 query="select count('id') as count from acc_extensions where element = 'com_automsg' or (element = 'automsg' and type='plugin' and folder='task')"
 				key_field="count"	key_value="count"	class="hidefield" />
-			    <field type="note" name="noteasync" label="PLG_CONTENT_AUTOMSG_ASYNC_NOTE" heading="p" />
+			    <field type="note" showon="chkasync!:2" name="noteasync" label="PLG_CONTENT_AUTOMSG_ASYNC_NOTE" heading="p" />
 				<field name="async" showon="chkasync:2"
 					type="radio" class="btn-group btn-group-yesno"
 					default="0"
