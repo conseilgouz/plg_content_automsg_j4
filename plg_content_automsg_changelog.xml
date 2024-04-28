@@ -3,6 +3,18 @@
 		<element>automsg</element>
 		<type>plugin</type>
 		<group>content</group>
+		<version>3.2.3</version>
+        <note>
+            <item>Update : 28/04/2024</item>
+        </note>
+		<fix>
+			<item>Suppress Warning: Undefined $article->subtitle</item>
+		</fix>
+	</changelog>
+	<changelog>
+		<element>automsg</element>
+		<type>plugin</type>
+		<group>content</group>
 		<version>3.2.2</version>
         <note>
             <item>Update : 28/04/2024</item>
