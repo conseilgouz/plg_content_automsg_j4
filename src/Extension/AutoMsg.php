@@ -18,6 +18,7 @@ use Joomla\CMS\Language\Text;
 use Joomla\CMS\Log\Log;
 use Joomla\CMS\Mail\MailTemplate;
 use Joomla\CMS\Plugin\CMSPlugin;
+use Joomla\CMS\Plugin\PluginHelper;
 use Joomla\CMS\User\UserFactoryInterface;
 use Joomla\CMS\Uri\Uri;
 use Joomla\Component\Content\Site\Model\ArticleModel;
@@ -133,9 +134,13 @@ final class AutoMsg extends CMSPlugin
 
             $article = $model->getItem($articleid);
             if (!empty($categories) && !in_array($article->catid, $categories)) {
-                continue;
-            } // wrong category
-            if ($this->params->get('async', 0)) {
+                continue; // wrong category
+            }
+            $async = false;
+            if (PluginHelper::isEnabled('task', 'automsg') && ComponentHelper::isEnabled('com_automsg')) {
+                $async = true; // automsg task plugin / component ok
+            }
+            if ($this->params->get('async', 0) && $async) {
                 $this->async($article);
             } else {
                 $this->sendEmails($article, $users, $tokens);
