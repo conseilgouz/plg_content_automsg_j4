@@ -7,7 +7,7 @@
 	<license>GNU General Public License version 3 or later; see LICENSE.txt</license>
 	<authorEmail>pascal.leconte@conseilgouz.com</authorEmail>
 	<authorUrl>www.conseilgouz.com</authorUrl>
-	<version>3.2.0</version>
+	<version>3.2.1</version>
 	<description>PLG_CONTENT_AUTOMSG_XML_DESCRIPTION</description>
 	<files>
 		<folder plugin="automsg">services</folder>
@@ -63,7 +63,7 @@
 					<option value="1">Oui</option>
 				</field>
 				<field name="chkasync" type="sql"
-                query="select count('id') as count from acc_extensions where element = 'com_automsg' or (element = 'automsg' and type='plugin' and folder='task')"
+                query="select count('id') as count from #__extensions where element = 'com_automsg' or (element = 'automsg' and type='plugin' and folder='task')"
 				key_field="count"	key_value="count"	class="hidefield" />
 			    <field type="note" showon="chkasync!:2" name="noteasync" label="PLG_CONTENT_AUTOMSG_ASYNC_NOTE" heading="p" />
 				<field name="async" showon="chkasync:2"

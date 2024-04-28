@@ -3,6 +3,18 @@
 		<element>automsg</element>
 		<type>plugin</type>
 		<group>content</group>
+		<version>3.2.1</version>
+        <note>
+            <item>Update : 28/04/2024</item>
+        </note>
+		<fix>
+			<item>undefined acc_extension table error</item>
+		</fix>
+	</changelog>
+	<changelog>
+		<element>automsg</element>
+		<type>plugin</type>
+		<group>content</group>
 		<version>3.2.0</version>
         <note>
             <item>Update : 27/04/2024</item>
