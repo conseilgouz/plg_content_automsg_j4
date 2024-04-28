@@ -14,6 +14,10 @@
 		<folder>src</folder>
 		<filename >index.html</filename>
 	</files>
+	<media folder="media" destination="plg_content_automsg">
+        <folder>js</folder>
+        <filename>index.html</filename>
+	</media>
     <languages>
 		<language tag="fr-FR">language/fr-FR/plg_content_automsg.ini</language>
 		<language tag="fr-FR">language/fr-FR/plg_content_automsg.sys.ini</language>
@@ -58,7 +62,11 @@
 					<option value="0">Non</option>
 					<option value="1">Oui</option>
 				</field>
-				<field name="async"
+				<field name="chkasync" type="sql"
+                query="select count('id') as count from acc_extensions where element = 'com_automsg' or (element = 'automsg' and type='plugin' and folder='task')"
+				key_field="count"	key_value="count"	class="hidefield" />
+			    <field type="note" name="noteasync" label="PLG_CONTENT_AUTOMSG_ASYNC_NOTE" heading="p" />
+				<field name="async" showon="chkasync:2"
 					type="radio" class="btn-group btn-group-yesno"
 					default="0"
 					label="PLG_CONTENT_AUTOMSG_ASYNC"
