@@ -1,7 +1,7 @@
 <?php
 /**
 * AutoMsg Plugin  - Joomla 4.x/5.x plugin
-* Version			: 3.2.0
+* Version			: 3.2.4
 * copyright 		: Copyright (C) 2024 ConseilGouz. All rights reserved.
 * license    		: http://www.gnu.org/licenses/gpl-2.0.html GNU/GPL
 */
@@ -52,6 +52,13 @@ class plgcontentautomsgInstallerScript
         if (! file_exists($this->dir . '/' . $this->installerName . '.xml')) {
             return true;
         }
+    }
+    function uninstall($parent) {
+        $template = new TemplateModel(array('ignore_request' => true));
+        $table = $template->getTable();
+        $table->delete('plg_content_automsg.ownermail');
+        $table->delete('plg_content_automsg.usermail');
+        return true;
     }
 
     public function postflight($type, $parent)
