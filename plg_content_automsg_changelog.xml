@@ -3,6 +3,18 @@
 		<element>automsg</element>
 		<type>plugin</type>
 		<group>content</group>
+		<version>3.2.5</version>
+        <note>
+            <item>Update : 06/05/2024</item>
+        </note>
+		<fix>
+			<item>Install : check previous plugin version</item>
+		</fix>
+	</changelog>
+	<changelog>
+		<element>automsg</element>
+		<type>plugin</type>
+		<group>content</group>
 		<version>3.2.4</version>
         <note>
             <item>Update : 29/04/2024</item>

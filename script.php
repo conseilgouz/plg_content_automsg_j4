@@ -1,7 +1,7 @@
 <?php
 /**
 * AutoMsg Plugin  - Joomla 4.x/5.x plugin
-* Version			: 3.2.4
+* Version			: 3.2.5
 * copyright 		: Copyright (C) 2024 ConseilGouz. All rights reserved.
 * license    		: http://www.gnu.org/licenses/gpl-2.0.html GNU/GPL
 */
@@ -182,7 +182,7 @@ class plgcontentautomsgInstallerScript
         $table->save($data);
         // other users mail template
         $data['template_id'] = 'plg_content_automsg.usermail';
-        if ($plugin) {
+        if ($plugin && isset($params->subject)) {
             $subject = $this->tagstouppercase($params->subject);
             $data['subject'] = $subject;
             $body = $this->tagstouppercase($params->body);
