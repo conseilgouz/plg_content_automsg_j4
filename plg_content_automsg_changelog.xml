@@ -1,5 +1,5 @@
 <changelogs>
-	<changelog>
+    <changelog>
 		<element>automsg</element>
 		<type>plugin</type>
 		<group>content</group>
@@ -10,8 +10,8 @@
 		<fix>
 			<item>Install : check previous plugin version</item>
 		</fix>
-	</changelog>
-	<changelog>
+    </changelog>
+    <changelog>
 		<element>automsg</element>
 		<type>plugin</type>
 		<group>content</group>
